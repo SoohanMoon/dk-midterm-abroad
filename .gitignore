@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# Runtime data
+중간점검(해외)/performance_data_abroad.json
+
+# OS/editor
+.DS_Store
+Thumbs.db
