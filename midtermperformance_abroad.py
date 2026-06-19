@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 동국홀딩스 2026 평가시스템 - 해외법인 중간점검 모듈
-실적등록(임직원), 실적조회(법인장), 관리자 화면
+실적등록(직원), 실적조회(법인장), 관리자 화면
 """
 import json
 import os
@@ -210,7 +210,7 @@ def login():
         return render_template("performance_abroad/login.html", error="ID 또는 비밀번호가 올바르지 않습니다.")
 
     if mode == "register" and not _is_register_user(user["position"]):
-        return render_template("performance_abroad/login.html", error="실적등록은 법인장·관리자를 제외한 임직원만 이용할 수 있습니다.")
+        return render_template("performance_abroad/login.html", error="실적등록은 법인장·관리자를 제외한 직원만 이용할 수 있습니다.")
     if mode == "inquiry" and not _is_leader(user["position"]):
         return render_template("performance_abroad/login.html", error="실적조회는 법인장만 이용할 수 있습니다.")
 
@@ -231,7 +231,7 @@ def logout():
 
 @performance_abroad_bp.route("/register")
 def register_page():
-    """실적등록 화면 (임직원)"""
+    """실적등록 화면 (직원)"""
     user = _require_mode("register")
     if not user:
         return redirect(url_for("performance_abroad.login_page"))
@@ -418,7 +418,7 @@ def api_submit():
 
 @performance_abroad_bp.route("/api/member/<member_id>")
 def api_member_performance(member_id):
-    """임직원 실적 조회 (법인장/관리자)"""
+    """직원 실적 조회 (법인장/관리자)"""
     user = _require_mode("inquiry")
     is_admin = _require_admin()
     if not user and not is_admin:
@@ -434,9 +434,9 @@ def api_member_performance(member_id):
 
     if user and not is_admin:
         if target["team"] != user["team"]:
-            return jsonify({"success": False, "message": "같은 법인 임직원만 조회할 수 있습니다."}), 403
+            return jsonify({"success": False, "message": "같은 법인 직원만 조회할 수 있습니다."}), 403
         if not _is_register_user(target["position"]):
-            return jsonify({"success": False, "message": "임직원만 조회할 수 있습니다."}), 403
+            return jsonify({"success": False, "message": "직원만 조회할 수 있습니다."}), 403
 
     perf = get_user_performance(member_id)
     if not perf or perf.get("status") != "submitted":
@@ -470,9 +470,9 @@ def api_save_interview(member_id):
         return jsonify({"success": False, "message": "사용자를 찾을 수 없습니다."}), 404
 
     if target["team"] != user["team"]:
-        return jsonify({"success": False, "message": "같은 법인 임직원만 관리할 수 있습니다."}), 403
+        return jsonify({"success": False, "message": "같은 법인 직원만 관리할 수 있습니다."}), 403
     if not _is_register_user(target["position"]):
-        return jsonify({"success": False, "message": "임직원만 관리할 수 있습니다."}), 403
+        return jsonify({"success": False, "message": "직원만 관리할 수 있습니다."}), 403
 
     data = request.get_json() or {}
     done = bool(data.get("done"))
@@ -505,7 +505,7 @@ def api_save_interview(member_id):
 
 @performance_abroad_bp.route("/api/admin/member/<member_id>")
 def api_admin_member_performance(member_id):
-    """관리자용 임직원 실적 조회 (임시저장 포함)"""
+    """관리자용 직원 실적 조회 (임시저장 포함)"""
     if not _require_admin():
         return jsonify({"success": False, "message": "권한이 없습니다."}), 401
 
@@ -549,4 +549,4 @@ def api_admin_reset(member_id):
 
     del all_data[member_id]
     save_performance_data(all_data)
-    return jsonify({"success": True, "message": "해당 임직원의 실적이 초기화되었습니다."})
+    return jsonify({"success": True, "message": "해당 직원의 실적이 초기화되었습니다."})
